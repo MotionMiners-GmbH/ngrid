@@ -18,7 +18,7 @@ const ALWAYS_FALSE_FN = () => false;
   templateUrl: './table-checkbox.component.html',
   styleUrls: ['./table-checkbox.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.None,
+  encapsulation: ViewEncapsulation.None
 })
 export class PblNgridCheckboxComponent implements AfterViewInit, OnDestroy {
   /**
@@ -37,8 +37,10 @@ export class PblNgridCheckboxComponent implements AfterViewInit, OnDestroy {
    *
    * The default value is `all`
    */
-  @Input() get bulkSelectMode(): 'all' | 'view' | 'none' { return this._bulkSelectMode; }
-  set bulkSelectMode(value: 'all' | 'view' | 'none') {
+  @Input() get bulkSelectMode(): 'all' | 'view' | 'filter' | 'none' {
+    return this._bulkSelectMode;
+  }
+  set bulkSelectMode(value: 'all' | 'view' | 'filter' | 'none') {
     if (value !== this._bulkSelectMode) {
       this._bulkSelectMode = value;
       this.setupSelection();
@@ -58,11 +60,16 @@ export class PblNgridCheckboxComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  @Input() get isCheckboxDisabled() { return this._isCheckboxDisabled; }
+  @Input() get isCheckboxDisabled() {
+    return this._isCheckboxDisabled;
+  }
   set isCheckboxDisabled(value: (row: any) => boolean) {
     if (value !== this._isCheckboxDisabled) {
       this._isCheckboxDisabled = value;
-      if (!this._isCheckboxDisabled || typeof this._isCheckboxDisabled !== 'function') {
+      if (
+        !this._isCheckboxDisabled ||
+        typeof this._isCheckboxDisabled !== 'function'
+      ) {
         this._isCheckboxDisabled = ALWAYS_FALSE_FN;
       }
     }
@@ -78,15 +85,18 @@ export class PblNgridCheckboxComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  @ViewChild(PblNgridHeaderCellDefDirective, { static: true }) headerDef: PblNgridHeaderCellDefDirective<any>;
-  @ViewChild(PblNgridCellDefDirective, { static: true }) cellDef: PblNgridCellDefDirective<any>;
-  @ViewChild(PblNgridFooterCellDefDirective, { static: true }) footerDef: PblNgridFooterCellDefDirective<any>;
+  @ViewChild(PblNgridHeaderCellDefDirective, { static: true })
+  headerDef: PblNgridHeaderCellDefDirective<any>;
+  @ViewChild(PblNgridCellDefDirective, { static: true })
+  cellDef: PblNgridCellDefDirective<any>;
+  @ViewChild(PblNgridFooterCellDefDirective, { static: true })
+  footerDef: PblNgridFooterCellDefDirective<any>;
 
   allSelected = false;
   length: number;
 
   private _selection: SelectionModel<any>;
-  private _bulkSelectMode: 'all' | 'view' | 'none';
+  private _bulkSelectMode: 'all' | 'view' | 'filter' | 'none';
   private _isCheckboxDisabled: (row: any) => boolean = ALWAYS_FALSE_FN;
   private _color: ThemePalette;
 
@@ -94,7 +104,7 @@ export class PblNgridCheckboxComponent implements AfterViewInit, OnDestroy {
     const pluginCtrl = PblNgridPluginController.find(table);
     pluginCtrl.events
       .pipe(unrx(this))
-      .subscribe( e => {
+      .subscribe( (e: any) => {
         if (e.kind === 'onDataSource') {
           this.selection = e.curr.selection;
         }
@@ -121,7 +131,9 @@ export class PblNgridCheckboxComponent implements AfterViewInit, OnDestroy {
     if (this.allSelected) {
       this.selection.clear();
     } else {
-      const selected = this.getCollection().filter(data => !this._isCheckboxDisabled(data));
+      const selected = this.getCollection().filter(
+        data => !this._isCheckboxDisabled(data)
+      );
       this.selection.select(...selected);
     }
   }
@@ -133,7 +145,11 @@ export class PblNgridCheckboxComponent implements AfterViewInit, OnDestroy {
 
   private getCollection() {
     const { ds } = this.table;
-    return this.bulkSelectMode === 'view' ? ds.renderedData : ds.source;
+    return this.bulkSelectMode === 'view'
+      ? ds.renderedData
+      : this.bulkSelectMode === 'filter'
+      ? ds.filteredData
+      : ds.source;
   }
 
   private setupSelection(): void {
@@ -143,7 +159,9 @@ export class PblNgridCheckboxComponent implements AfterViewInit, OnDestroy {
       this.selection.changed
         .pipe(unrx(this, this.table))
         .subscribe(() => this.handleSelectionChanged());
-      const changeSource = this.bulkSelectMode === 'view' ? this.table.ds.onRenderedDataChanged : this.table.ds.onSourceChanged;
+      const changeSource = this.bulkSelectMode === 'view'
+        ? this.table.ds.onRenderedDataChanged
+        : this.table.ds.onSourceChanged;
       changeSource
         .pipe(unrx(this, this.table))
         .subscribe(() => this.handleSelectionChanged());

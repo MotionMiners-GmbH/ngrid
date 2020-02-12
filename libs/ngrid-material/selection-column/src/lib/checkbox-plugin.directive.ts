@@ -1,4 +1,11 @@
-import { Directive, Injector, Input, OnDestroy, ComponentFactoryResolver, ComponentRef } from '@angular/core';
+import {
+  Directive,
+  Injector,
+  Input,
+  OnDestroy,
+  ComponentFactoryResolver,
+  ComponentRef
+} from '@angular/core';
 import { ThemePalette } from '@angular/material/core';
 
 import { PblNgridComponent, PblNgridPluginController } from '@pebula/ngrid';
@@ -41,7 +48,9 @@ export class PblNgridMatCheckboxSelectionDirective implements OnDestroy {
         }
       } else {
         if (!this.cmpRef) {
-          this.cmpRef = this.cfr.resolveComponentFactory(PblNgridCheckboxComponent).create(this.injector);
+          this.cmpRef = this.cfr
+            .resolveComponentFactory(PblNgridCheckboxComponent)
+            .create(this.injector);
           this.cmpRef.instance.table = this.table;
           if (this._bulkSelectMode) {
             this.cmpRef.instance.bulkSelectMode = this._bulkSelectMode;
@@ -66,8 +75,10 @@ export class PblNgridMatCheckboxSelectionDirective implements OnDestroy {
    *
    * The default value is `all`
    */
-  @Input() get bulkSelectMode(): 'all' | 'view' | 'none' { return this._bulkSelectMode; }
-  set bulkSelectMode(value: 'all' | 'view' | 'none') {
+  @Input() get bulkSelectMode(): 'all' | 'view' | 'filter' | 'none' {
+    return this._bulkSelectMode;
+  }
+  set bulkSelectMode(value: 'all' | 'view' | 'filter' | 'none') {
     if (value !== this._bulkSelectMode) {
       this._bulkSelectMode = value;
       if (this.cmpRef) {
@@ -76,7 +87,9 @@ export class PblNgridMatCheckboxSelectionDirective implements OnDestroy {
     }
   }
 
-  @Input() get matCheckboxSelectionColor(): ThemePalette { return this._color; }
+  @Input() get matCheckboxSelectionColor(): ThemePalette {
+    return this._color;
+  }
   set matCheckboxSelectionColor(value: ThemePalette) {
     if (value !== this._color) {
       this._color = value;
@@ -87,16 +100,18 @@ export class PblNgridMatCheckboxSelectionDirective implements OnDestroy {
   }
 
   private _name: string;
-  private _bulkSelectMode: 'all' | 'view' | 'none';
+  private _bulkSelectMode: 'all' | 'view' | 'filter' | 'none';
   private _color: ThemePalette = 'primary';
   private cmpRef: ComponentRef<PblNgridCheckboxComponent>;
   private _removePlugin: (table: PblNgridComponent<any>) => void;
   private _isCheckboxDisabled: (row: any) => boolean;
 
-  constructor(private table: PblNgridComponent<any>,
-              private cfr: ComponentFactoryResolver,
-              private injector: Injector,
-              pluginCtrl: PblNgridPluginController) {
+  constructor(
+    private table: PblNgridComponent<any>,
+    private cfr: ComponentFactoryResolver,
+    private injector: Injector,
+    pluginCtrl: PblNgridPluginController
+  ) {
     this._removePlugin = pluginCtrl.setPlugin(PLUGIN_KEY, this);
   }
 
