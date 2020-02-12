@@ -3,7 +3,7 @@
   "version": "1.0.0-rc.16",
   "license": "MIT",
   "scripts": {
-    "prepare": "ng build utils --prod && ng build ngrid --prod && ng build ngrid-material --prod",
+    "prepare": "npm run build grid",
     "ng": "ng",
     "start": "ng serve",
     "lerna": "lerna",
