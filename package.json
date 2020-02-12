@@ -2,6 +2,9 @@
   "name": "pebula",
   "version": "1.0.0-rc.16",
   "license": "MIT",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "prepare": "npm run build-grid",
     "ng": "ng",
