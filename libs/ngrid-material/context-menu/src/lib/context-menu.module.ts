@@ -24,7 +24,7 @@ import { MatExcelStyleHeaderMenu } from './header-context/styles/excel-style-hea
     MatFormFieldModule,
     MatInputModule,
     PblNgridModule,
-    PblNgridOverlayPanelModule
+    PblNgridOverlayPanelModule,
   ],
   declarations: [
     MatHeaderContextMenuTrigger,
@@ -35,6 +35,7 @@ import { MatExcelStyleHeaderMenu } from './header-context/styles/excel-style-hea
     PblNgridMatHeaderContextMenuPlugin,
   ],
   entryComponents: [
+    // TODO: remove when ViewEngine is no longer supported by angular (V11 ???)
     MatHeaderContextMenuTrigger,
     MatExcelStyleHeaderMenu,
   ],

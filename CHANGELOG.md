@@ -1,3 +1,40 @@
+# 2.0.0-rc.1 (2020-03-15)
+
+
+### Bug Fixes
+
+* **ngrid:** allow running in ViewEngine mode (fixes [#84](https://github.com/shlomiassaf/ngrid/issues/84)) ([#86](https://github.com/shlomiassaf/ngrid/issues/86)) ([fad8409](https://github.com/shlomiassaf/ngrid/commit/fad8409))
+* **ngrid/drag:** fully implement interface ([66f896b](https://github.com/shlomiassaf/ngrid/commit/66f896b))
+
+
+
+# 2.0.0-rc.0 (2020-03-13)
+
+
+### Features
+
+* **ngrid:** support angular 9 (#79) ([9f80f9e](https://github.com/shlomiassaf/ngrid/commit/9f80f9e))
+
+
+
+# 1.0.0-rc.20 (2020-03-03)
+
+
+### Bug Fixes
+
+* **ngrid/drag:** sneaky issue with PblDragDrop and AOT ([5eb6929](https://github.com/shlomiassaf/ngrid/commit/5eb6929))
+
+
+
+# 1.0.0-rc.17 (2020-02-23)
+
+
+### Bug Fixes
+
+* **ngrid/clipboard:** copy rows in logical order ([be53250](https://github.com/shlomiassaf/ngrid/commit/be53250))
+
+
+
 # 1.0.0-rc.16 (2020-01-16)
 
 

@@ -16,7 +16,8 @@ import {
   PblNgridComponent,
   PblNgridHeaderCellDefDirective,
   PblNgridCellDefDirective,
-  PblNgridFooterCellDefDirective
+  PblNgridFooterCellDefDirective,
+  PblNgridPluginController
 } from '@pebula/ngrid';
 
 const ALWAYS_FALSE_FN = () => false;
@@ -60,8 +61,7 @@ export class PblNgridCheckboxComponent implements AfterViewInit {
    * A Custom selection model, optional.
    * If not set, the selection model from the DataSource is used.
    */
-  @Input()
-  get selection(): SelectionModel<any> {
+  @Input() get selection(): SelectionModel<any> {
     return this._selection;
   }
   set selection(value: SelectionModel<any>) {
@@ -92,8 +92,10 @@ export class PblNgridCheckboxComponent implements AfterViewInit {
   set color(value: ThemePalette) {
     if (value !== this._color) {
       this._color = value;
-      this.cdr.markForCheck();
-      this.cdr.detectChanges();
+      if (this.table.isInit) {
+        this.cdr.markForCheck();
+        this.cdr.detectChanges();
+      }
     }
   }
 
@@ -113,12 +115,19 @@ export class PblNgridCheckboxComponent implements AfterViewInit {
   private _color: ThemePalette;
 
   constructor(
-    @Optional() public table: PblNgridComponent<any>,
+    public table: PblNgridComponent<any>,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) {
+    const pluginCtrl = PblNgridPluginController.find(table);
+    pluginCtrl.events.pipe(UnRx(this)).subscribe(e => {
+      if (e.kind === 'onDataSource') {
+        this.selection = e.curr.selection;
+      }
+    });
+  }
 
   ngAfterViewInit(): void {
-    if (!this.selection) {
+    if (!this.selection && this.table.ds) {
       this.selection = this.table.ds.selection;
     }
 
@@ -141,6 +150,8 @@ export class PblNgridCheckboxComponent implements AfterViewInit {
 
   rowItemChange(row: any): void {
     this.selection.toggle(row);
+    this.cdr.markForCheck();
+    this.cdr.detectChanges();
   }
 
   private getCollection() {

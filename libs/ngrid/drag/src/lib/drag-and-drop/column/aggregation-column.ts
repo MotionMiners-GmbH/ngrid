@@ -8,8 +8,8 @@ import {
   OnDestroy,
   Optional,
   SkipSelf,
+  QueryList,
 } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
 import { Directionality } from '@angular/cdk/bidi';
 import {
   DragDrop,
@@ -21,12 +21,11 @@ import {
 } from '@angular/cdk/drag-drop';
 
 import { PblNgridComponent, PblNgridPluginController, PblColumn } from '@pebula/ngrid';
-import { cdkDropList } from '../v7-compat';
 import { CdkLazyDropList } from '../core/lazy-drag-drop';
 import { PblDragRef } from '../core/drag-ref';
 import { PblDropListRef } from '../core/drop-list-ref';
 import { PblNgridColumnDragDirective } from './column-reorder-plugin';
-import { PblDragDrop } from '../core';
+import { PblDragDrop } from '../core/drag-drop';
 
 let _uniqueIdCounter = 0;
 
@@ -50,6 +49,7 @@ export class PblNgridAggregationContainerDirective<T = any> extends CdkDropList<
   orientation: 'horizontal' | 'vertical' = 'horizontal';
 
   pending: PblColumn;
+  _draggables: QueryList<CdkDrag>;
 
   constructor(public grid: PblNgridComponent<T>,
               pluginCtrl: PblNgridPluginController,
@@ -57,11 +57,8 @@ export class PblNgridAggregationContainerDirective<T = any> extends CdkDropList<
               dragDrop: DragDrop,
               changeDetectorRef: ChangeDetectorRef,
               @Optional() dir?: Directionality,
-              @Optional() @SkipSelf() group?: CdkDropListGroup<CdkDropList>,
-              @Optional() dragDropRegistry?: DragDropRegistry<any, any>, // for v7 compat
-              @Optional() @Inject(DOCUMENT) _document?: any,) {
-    super(...cdkDropList(element, dragDrop, changeDetectorRef, dir, group, dragDropRegistry, _document));
-    // super(element, dragDrop, changeDetectorRef, dir, group);
+              @Optional() @SkipSelf() group?: CdkDropListGroup<CdkDropList>) {
+    super(element, dragDrop, changeDetectorRef, dir, group);
     const reorder = pluginCtrl.getPlugin('columnReorder');
     reorder.connectedTo = this.id;
 
