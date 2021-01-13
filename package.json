@@ -4,7 +4,7 @@
   "description": "Angular Grid",
   "license": "MIT",
   "scripts": {
-    "prepare": "npm run build grid",
+    "prepare": "npm run build-grid",
     "ng": "nx",
     "start": "ng serve",
     "build-grid": "ng build ngrid --prod && ng build ngrid-material --prod && ng build ngrid-bootstrap --prod && ng build ngrid-cypress --prod",
