@@ -63,11 +63,12 @@ export class PblNgridMatCheckboxSelectionDirective implements OnDestroy {
    *
    * - all: Will select all items in the current collection
    * - view: Will select only the rendered items in the view
+   * - filter: Will select only the filtered items in the current collection
    *
    * The default value is `all`
    */
-  @Input() get bulkSelectMode(): 'all' | 'view' | 'none' { return this._bulkSelectMode; }
-  set bulkSelectMode(value: 'all' | 'view' | 'none') {
+  @Input() get bulkSelectMode(): 'all' | 'view' | 'filter' | 'none' { return this._bulkSelectMode; }
+  set bulkSelectMode(value: 'all' | 'view' | 'filter' | 'none') {
     if (value !== this._bulkSelectMode) {
       this._bulkSelectMode = value;
       if (this.cmpRef) {
@@ -87,7 +88,7 @@ export class PblNgridMatCheckboxSelectionDirective implements OnDestroy {
   }
 
   private _name: string;
-  private _bulkSelectMode: 'all' | 'view' | 'none';
+  private _bulkSelectMode: 'all' | 'view' | 'filter' | 'none';
   private _color: ThemePalette = 'primary';
   private cmpRef: ComponentRef<PblNgridCheckboxComponent>;
   private _removePlugin: (table: PblNgridComponent<any>) => void;

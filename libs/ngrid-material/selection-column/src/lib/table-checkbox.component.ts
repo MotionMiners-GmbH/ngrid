@@ -34,11 +34,12 @@ export class PblNgridCheckboxComponent implements AfterViewInit, OnDestroy {
    *
    * - all: Will select all items in the current collection
    * - view: Will select only the rendered items in the view
+   * - filter: Will select only the filtered items in the current collection
    *
    * The default value is `all`
    */
-  @Input() get bulkSelectMode(): 'all' | 'view' | 'none' { return this._bulkSelectMode; }
-  set bulkSelectMode(value: 'all' | 'view' | 'none') {
+  @Input() get bulkSelectMode(): 'all' | 'view' | 'filter' | 'none' { return this._bulkSelectMode; }
+  set bulkSelectMode(value: 'all' | 'view' | 'filter' | 'none') {
     if (value !== this._bulkSelectMode) {
       this._bulkSelectMode = value;
       this.setupSelection();
@@ -86,7 +87,7 @@ export class PblNgridCheckboxComponent implements AfterViewInit, OnDestroy {
   length: number;
 
   private _selection: SelectionModel<any>;
-  private _bulkSelectMode: 'all' | 'view' | 'none';
+  private _bulkSelectMode: 'all' | 'view' | 'filter' | 'none';
   private _isCheckboxDisabled: (row: any) => boolean = ALWAYS_FALSE_FN;
   private _color: ThemePalette;
 
@@ -133,7 +134,11 @@ export class PblNgridCheckboxComponent implements AfterViewInit, OnDestroy {
 
   private getCollection() {
     const { ds } = this.table;
-    return this.bulkSelectMode === 'view' ? ds.renderedData : ds.source;
+    return this.bulkSelectMode === 'view'
+      ? ds.renderedData
+      : this.bulkSelectMode === 'filter'
+      ? ds.filteredData
+      : ds.source;
   }
 
   private setupSelection(): void {
