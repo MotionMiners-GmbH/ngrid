@@ -10,7 +10,7 @@ on:
       docsVersion:
         description: 'Docs Major Version'
         required: true
-        default: '3'
+        default: '4'
   release:
     types: [created]
 
@@ -24,17 +24,17 @@ jobs:
           script: |
             const CURRENT_VERSION = {
               branch: '${{ github.event.inputs.branch}}' || 'master',
-              packageManager: 'npm',
+              packageManager: 'yarn install --ignore-platform',
               nodeVer: 14,
               urlSuffix: '',
               projectName: 'ngrid-docs-app',
               clean: true,
-              cleanExclude: ['v1', 'v2'],
+              cleanExclude: ['v1', 'v2', 'v3'],
             };
             const OLD_VERSIONS = {
               '1': {
                 branch: '1.x.x-(angular-v8)',
-                packageManager: 'npm',
+                packageManager: 'npm install',
                 nodeVer: 12,
                 urlSuffix: 'v1/',
                 projectName: 'ngrid-demo-app',
@@ -43,10 +43,19 @@ jobs:
               },
               '2': {
                 branch: '2.x.x',
-                packageManager: 'npm',
+                packageManager: 'npm install',
                 nodeVer: 12,
                 urlSuffix: 'v2/',
                 projectName: 'ngrid-demo-app',
+                clean: false,
+                cleanExclude: [],
+              },
+              '3': {
+                branch: '3.x.x',
+                packageManager: 'yarn install --ignore-platform',
+                nodeVer: 14,
+                urlSuffix: 'v3/',
+                projectName: 'ngrid-docs-app',
                 clean: false,
                 cleanExclude: [],
               }
@@ -80,10 +89,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
       - name: Install Dependencies
-        run: ${{ fromJson(steps.workflowVariables.outputs.result).packageManager }} install
+        run: ${{ fromJson(steps.workflowVariables.outputs.result).packageManager }}
       - run: mkdir /home/runner/work/ngrid/ngrid/.cache
       - run: node --max-old-space-size=8192 ./node_modules/.bin/ng build --prod --base-href /ngrid/${{fromJson(steps.workflowVariables.outputs.result).urlSuffix}} --deploy-url /ngrid/${{fromJson(steps.workflowVariables.outputs.result).urlSuffix}}
-      - run: node --max-old-space-size=8192 ./node_modules/.bin/ng run ${{fromJson(steps.workflowVariables.outputs.result).projectName}}:server:production --bundleDependencies all
+      - run: node --max-old-space-size=8192 ./node_modules/.bin/ng run ${{fromJson(steps.workflowVariables.outputs.result).projectName}}:server:production --bundle-dependencies all
       - run: npm run compile:server
       - run: node dist/server
       - run: cp dist/browser/index.html dist/browser/404.html

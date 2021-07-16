@@ -1,9 +1,9 @@
 import { Directive, Inject, IterableDiffers, Optional, TemplateRef, OnInit } from '@angular/core';
 import { CdkRowDef, CDK_TABLE } from '@angular/cdk/table';
 
+import { _PblNgridComponent } from '../../tokens';
 import { PblNgridRegistryService } from '../registry/registry.service';
 import { PblNgridRowContext } from '../context/types';
-import { PblNgridComponent } from '../ngrid.component';
 import { PblNgridPluginController } from '../../ext/plugin-control';
 import { EXT_API_TOKEN, PblNgridExtensionApi } from '../../ext/grid-ext-api';
 
@@ -16,6 +16,11 @@ import { EXT_API_TOKEN, PblNgridExtensionApi } from '../../ext/grid-ext-api';
 })
 export class PblNgridRowDef<T> extends CdkRowDef<T> {
 
+  /**
+   * Empty rows.
+   * We don't supply column rows to the CdkTable so it will not render them.
+   * We render internally.
+   */
   columns: Iterable<string> = [];
 
   constructor(template: TemplateRef<PblNgridRowContext<T>>,
@@ -31,6 +36,7 @@ export class PblNgridRowDef<T> extends CdkRowDef<T> {
 
   clone(): this {
     const clone = Object.create(this);
+    // Provide 0 column so CdkTable will not render.
     this.columns = [];
     return clone;
   }
@@ -63,7 +69,7 @@ export class PblNgridRowDef<T> extends CdkRowDef<T> {
 })
 export class PblNgridRowOverride<T> extends PblNgridRowDef<T> implements OnInit {
 
-  grid: PblNgridComponent<T>;
+  grid: _PblNgridComponent<T>;
 
   constructor(template: TemplateRef<PblNgridRowContext<T>>,
               _differs: IterableDiffers,
@@ -77,8 +83,6 @@ export class PblNgridRowOverride<T> extends PblNgridRowDef<T> implements OnInit 
     if (!this.extApi && this.grid) {
       this.extApi = PblNgridPluginController.find(this.grid).extApi;
     }
-    if (this.extApi) {
-      this.extApi.cdkTable.addRowDef(this);
-    }
+    this.extApi?.cdkTable.addRowDef(this);
   }
 }

@@ -17,7 +17,6 @@
         "build": {
           "builder": "ngx-build-plus:build",
           "options": {
-            "aot": false,
             "plugin": "~apps/ngrid-docs-app/ngx-build-plus-plugin",
             "outputPath": "dist/browser",
             "index": "apps/ngrid-docs-app/src/index.html",
@@ -41,6 +40,15 @@
             ]
           },
           "configurations": {
+            "development": {
+              "aot": false,
+              "vendorChunk": true,
+              "buildOptimizer": false,
+              "sourceMap": true,
+              "optimization": false,
+              "namedChunks": true,
+              "extractLicenses": false
+            },
             "production": {
               "aot": true,
               "fileReplacements": [
@@ -64,21 +72,34 @@
                   "maximumError": "5mb"
                 }
               ]
+            },
+            "_useDist": {
+              "tsConfig": "apps/ngrid-docs-app/tsconfig.app.dist.json"
             }
-          }
+          },
+          "defaultConfiguration": "development"
         },
         "serve": {
           "builder": "ngx-build-plus:dev-server",
           "options": {
-            "browserTarget": "ngrid-docs-app:build",
             "port": 4201,
             "plugin": "~apps/ngrid-docs-app/ngx-build-plus-plugin"
           },
           "configurations": {
+            "development": {
+              "browserTarget": "ngrid-docs-app:build:development"
+            },
+            "development-dist": {
+              "browserTarget": "ngrid-docs-app:build:development,_useDist"
+            },
             "production": {
               "browserTarget": "ngrid-docs-app:build:production"
+            },
+            "production-dist": {
+              "browserTarget": "ngrid-docs-app:build:production,_useDist"
             }
-          }
+          },
+          "defaultConfiguration": "development"
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
@@ -87,6 +108,16 @@
             "tsConfig": "apps/ngrid-docs-app/tsconfig.spec.karma.json",
             "karmaConfig": "apps/ngrid-docs-app/karma.conf.js",
             "polyfills": "apps/ngrid-docs-app/src/polyfills.ts",
+            "fileReplacements": [
+              {
+                "replace": "apps/libs/docs-app-lib/client-api/lib/client-adapters/worker.ts",
+                "with": "apps/libs/docs-app-lib/client-api/lib/client-adapters/window.ts"
+              },
+              {
+                "replace": "apps/libs/docs-app-lib/lib/services/search/search-adapters/worker.ts",
+                "with": "apps/libs/docs-app-lib/lib/services/search/search-adapters/noop.ts"
+              }
+            ],
             "styles": [
               "apps/ngrid-docs-app/src/__test-runners/main-test.scss"
             ],
@@ -144,6 +175,14 @@
                 {
                   "replace": "apps/ngrid-docs-app/src/environments/environment.ts",
                   "with": "apps/ngrid-docs-app/src/environments/environment.prod.ts"
+                },
+                {
+                  "replace": "apps/libs/docs-app-lib/client-api/lib/client-adapters/worker.ts",
+                  "with": "apps/libs/docs-app-lib/client-api/lib/client-adapters/window.ts"
+                },
+                {
+                  "replace": "apps/libs/docs-app-lib/lib/services/search/search-adapters/worker.ts",
+                  "with": "apps/libs/docs-app-lib/lib/services/search/search-adapters/noop.ts"
                 }
               ],
               "sourceMap": false,
@@ -165,14 +204,23 @@
           "builder": "@nrwl/cypress:cypress",
           "options": {
             "cypressConfig": "apps/ngrid-docs-app-e2e/cypress.json",
-            "tsConfig": "apps/ngrid-docs-app-e2e/tsconfig.e2e.json",
-            "devServerTarget": "ngrid-docs-app:serve"
+            "tsConfig": "apps/ngrid-docs-app-e2e/tsconfig.e2e.json"
           },
           "configurations": {
+            "development": {
+              "devServerTarget": "ngrid-docs-app:servedevelopment"
+            },
+            "development-dist": {
+              "devServerTarget": "ngrid-docs-app:serve:development-dist"
+            },
             "production": {
               "devServerTarget": "ngrid-docs-app:serve:production"
+            },
+            "production-dist": {
+              "devServerTarget": "ngrid-docs-app:serve:production-dist"
             }
-          }
+          },
+          "defaultConfiguration": "development"
         },
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
@@ -207,11 +255,16 @@
             "main": "apps/ngrid-dev-app/src/main.ts",
             "polyfills": "apps/ngrid-dev-app/src/polyfills.ts",
             "tsConfig": "apps/ngrid-dev-app/tsconfig.app.json",
-            "aot": true,
             "styles": [
               "apps/ngrid-dev-app/src/theme.scss"
             ],
-            "scripts": []
+            "extractLicenses": false,
+            "scripts": [],
+            "vendorChunk": true,
+            "buildOptimizer": false,
+            "sourceMap": true,
+            "optimization": false,
+            "namedChunks": true
           },
           "configurations": {
             "production": {
@@ -330,6 +383,9 @@
             },
             "production": {
               "devServerTarget": "ngrid-dev-app:serve:production"
+            },
+            "production-dist": {
+              "devServerTarget": "ngrid-dev-app:serve:production"
             }
           }
         },
@@ -367,6 +423,7 @@
               "config": "tools/ng-packagr.transformers/ngrid.transformers.ts",
               "tsConfig": "tools/tsconfig.json",
               "data": {
+                "analyseSourcesWorkaround": { },
                 "copyFile": {
                   "assets": [
                     {
@@ -378,13 +435,19 @@
                       "glob": "LICENSE",
                       "input": ".",
                       "output": "dist/@pebula/ngrid"
-                    }
-                  ]
-                },
-                "sassBundle": {
-                  "entries": [
+                    },
                     {
-                      "glob": "_theming.scss",
+                      "glob": "*.scss",
+                      "input": "libs/ngrid",
+                      "output": "dist/@pebula/ngrid"
+                    },
+                    {
+                      "glob": "**/*.scss",
+                      "input": "libs/ngrid/theming",
+                      "output": "dist/@pebula/ngrid/theming"
+                    },
+                    {
+                      "glob": "*/theming/**/*.scss",
                       "input": "libs/ngrid",
                       "output": "dist/@pebula/ngrid"
                     }
@@ -394,7 +457,7 @@
                   "entries": [
                     {
                       "glob": "*.scss",
-                      "input": "libs/ngrid/src/themes/prebuilt",
+                      "input": "libs/ngrid/theming/prebuilt",
                       "output": "dist/@pebula/ngrid/themes"
                     }
                   ]
@@ -412,8 +475,10 @@
           },
           "configurations": {
             "production": {
-              "tsConfig": "libs/ngrid/tsconfig.lib.prod.json",
-              "project": "libs/ngrid/ng-package.prod.json"
+              "tsConfig": "libs/ngrid/tsconfig.lib.prod.json"
+            },
+            "production-ivy": {
+              "tsConfig": "libs/ngrid/tsconfig.lib.prod.ivy.json"
             }
           }
         },
@@ -487,13 +552,19 @@
                       "glob": "README.md",
                       "input": ".",
                       "output": "dist/@pebula/ngrid-material"
-                    }
-                  ]
-                },
-                "sassBundle": {
-                  "entries": [
+                    },
                     {
-                      "glob": "_theming.scss",
+                      "glob": "*.scss",
+                      "input": "libs/ngrid-material",
+                      "output": "dist/@pebula/ngrid-material"
+                    },
+                    {
+                      "glob": "**/*.scss",
+                      "input": "libs/ngrid-material/theming",
+                      "output": "dist/@pebula/ngrid-material/theming"
+                    },
+                    {
+                      "glob": "*/theming/**/*.scss",
                       "input": "libs/ngrid-material",
                       "output": "dist/@pebula/ngrid-material"
                     }
@@ -503,7 +574,7 @@
                   "entries": [
                     {
                       "glob": "*.scss",
-                      "input": "libs/ngrid-material/src/themes/prebuilt",
+                      "input": "libs/ngrid-material/theming/prebuilt",
                       "output": "dist/@pebula/ngrid-material/themes"
                     }
                   ]
@@ -513,8 +584,10 @@
           },
           "configurations": {
             "production": {
-              "tsConfig": "libs/ngrid-material/tsconfig.lib.prod.json",
-              "project": "libs/ngrid-material/ng-package.prod.json"
+              "tsConfig": "libs/ngrid-material/tsconfig.lib.prod.json"
+            },
+            "production-ivy": {
+              "tsConfig": "libs/ngrid-material/tsconfig.lib.prod.ivy.json"
             }
           }
         },
@@ -526,6 +599,7 @@
           },
           "configurations": {
             "ci": {
+              "jestConfig": "libs/ngrid-material/jest.config.js",
               "watch": false,
               "progress": false,
               "browsers": "ChromeHeadlessCI"
@@ -602,8 +676,10 @@
           },
           "configurations": {
             "production": {
-              "tsConfig": "libs/ngrid-cypress/tsconfig.lib.prod.json",
-              "project": "libs/ngrid-cypress/ng-package.prod.json"
+              "tsConfig": "libs/ngrid-cypress/tsconfig.lib.prod.json"
+            },
+            "production-ivy": {
+              "tsConfig": "libs/ngrid-cypress/tsconfig.lib.prod.ivy.json"
             }
           }
         },
@@ -643,13 +719,19 @@
                       "glob": "README.md",
                       "input": ".",
                       "output": "dist/@pebula/ngrid-bootstrap"
-                    }
-                  ]
-                },
-                "sassBundle": {
-                  "entries": [
+                    },
                     {
-                      "glob": "_theming.scss",
+                      "glob": "*.scss",
+                      "input": "libs/ngrid-bootstrap",
+                      "output": "dist/@pebula/ngrid-bootstrap"
+                    },
+                    {
+                      "glob": "**/*.scss",
+                      "input": "libs/ngrid-bootstrap/theming",
+                      "output": "dist/@pebula/ngrid-bootstrap/theming"
+                    },
+                    {
+                      "glob": "*/theming/**/*.scss",
                       "input": "libs/ngrid-bootstrap",
                       "output": "dist/@pebula/ngrid-bootstrap"
                     }
@@ -659,7 +741,7 @@
                   "entries": [
                     {
                       "glob": "*.scss",
-                      "input": "libs/ngrid-bootstrap/src/themes/prebuilt",
+                      "input": "libs/ngrid-bootstrap/theming/prebuilt",
                       "output": "dist/@pebula/ngrid-bootstrap/themes"
                     }
                   ]
@@ -669,8 +751,10 @@
           },
           "configurations": {
             "production": {
-              "tsConfig": "libs/ngrid-bootstrap/tsconfig.lib.prod.json",
-              "project": "libs/ngrid-bootstrap/ng-package.prod.json"
+              "tsConfig": "libs/ngrid-bootstrap/tsconfig.lib.prod.json"
+            },
+            "production-ivy": {
+              "tsConfig": "libs/ngrid-bootstrap/tsconfig.lib.prod.ivy.json"
             }
           }
         },

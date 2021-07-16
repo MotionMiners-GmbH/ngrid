@@ -24,7 +24,7 @@ import {
 } from '@angular/core';
 
 import { Direction, Directionality } from '@angular/cdk/bidi';
-import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
+import { BooleanInput, coerceBooleanProperty, coerceNumberProperty, NumberInput } from '@angular/cdk/coercion';
 import { CdkHeaderRowDef, CdkFooterRowDef, CdkRowDef } from '@angular/cdk/table';
 
 import {
@@ -40,6 +40,7 @@ import {
   deprecatedWarning, unrx,
 } from '@pebula/ngrid/core';
 
+import { PBL_NGRID_COMPONENT } from '../tokens';
 import { EXT_API_TOKEN, PblNgridExtensionApi, PblNgridInternalExtensionApi } from '../ext/grid-ext-api';
 import { PblNgridPluginController, PblNgridPluginContext } from '../ext/plugin-control';
 import { PblNgridRegistryService } from './registry/registry.service';
@@ -70,6 +71,7 @@ declare module '../ext/types' {
   selector: 'pbl-ngrid',
   templateUrl: './ngrid.component.html',
   providers: [
+    {provide: PBL_NGRID_COMPONENT, useExisting: PblNgridComponent},
     PblNgridRegistryService,
     {
       provide: PblNgridPluginController,
@@ -172,13 +174,13 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
 
   get ds(): PblDataSource<T> { return this._dataSource; };
 
-  @Input() get usePagination(): PblNgridPaginatorKind | false { return this._pagination; }
-  set usePagination(value: PblNgridPaginatorKind | false) {
+  @Input() get usePagination(): PblNgridPaginatorKind | false | '' { return this._pagination; }
+  set usePagination(value: PblNgridPaginatorKind | false | '') {
     if ((value as any) === '') {
       value = 'pageNumber';
     }
     if ( value !== this._pagination ) {
-      this._pagination = value;
+      this._pagination = value as any;
       this._extApi.logicaps.pagination();
     }
   }
@@ -258,9 +260,8 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
   }
 
   /**
-   * @deprecated see `minDataViewHeight`
+   * @deprecated Will be removed in v5, see `minDataViewHeight`
    */
-  // TODO: remove in v4.0.0
   @Input() get fallbackMinHeight(): number {
     if (typeof ngDevMode === 'undefined' || ngDevMode) {
       deprecatedWarning('PblNgridComponent.fallbackMinHeight', '4', 'PblNgridComponent.minDataViewHeight');
@@ -330,8 +331,8 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
               private ngZone: NgZone,
               private cdr: ChangeDetectorRef,
               private config: PblNgridConfigService,
-              // TODO: Make private in v 4
-              /** @deprecated Will be removed in version 4 */
+              // TODO: Make private in v5
+              /** @deprecated Will be removed in v5 */
               public registry: PblNgridRegistryService,
               @Attribute('id') public readonly id: string,
               @Optional() dir?: Directionality) {
@@ -736,4 +737,10 @@ export class PblNgridComponent<T = any> implements AfterContentInit, AfterViewIn
       }
     }
   }
+
+  static ngAcceptInputType_showHeader: BooleanInput;
+  static ngAcceptInputType_showFooter: BooleanInput;
+  static ngAcceptInputType_noFiller: BooleanInput;
+  static ngAcceptInputType_noCachePaginator: BooleanInput;
+  static ngAcceptInputType_minDataViewHeight: NumberInput;
 }

@@ -1,0 +1,25 @@
+@use '../../ngrid' as ngrid;
+
+@mixin ngrid-bootstrap-theme($theme) {
+  @include ngrid.ngrid-theme($theme);
+
+  .pbl-ngrid-first-header-row {
+    border-top-width: 1px;
+  }
+
+  .pbl-ngrid-last-header-row {
+    border-bottom-width: 2px;
+  }
+
+  .pbl-ngrid-last-footer-row {
+    border-bottom-width: 1px;
+  }
+
+  .pbl-ngrid-first-footer-row {
+    border-top-width: 2px;
+  }
+
+  .pbl-ngrid-header-cell, .pbl-ngrid-footer-cell {
+    font-weight: bold;
+  }
+}

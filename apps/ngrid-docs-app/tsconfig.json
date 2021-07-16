@@ -4,9 +4,11 @@
     "types": [
       "node",
       "jest",
-      "@types/resize-observer-browser",
       "dev-mode-types"
     ]
+  },
+  "angularCompilerOptions": {
+    "strictTemplates": true
   },
   "references": [
     {

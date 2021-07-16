@@ -1,8 +1,8 @@
 import * as Path from 'path';
-import { Compiler, Configuration, DefinePlugin } from 'webpack';
+import { Compiler, Configuration, DefinePlugin, debug } from 'webpack';
 import * as simplegit from 'simple-git/promise';
 
-import { PebulaDynamicModuleWebpackPlugin } from '@pebula-internal/webpack-dynamic-module';
+import { PebulaDynamicDictionaryWebpackPlugin } from '@pebula-internal/webpack-dynamic-dictionary';
 import { MarkdownPagesWebpackPlugin } from '@pebula-internal/webpack-markdown-pages';
 import { SsrAndSeoWebpackPlugin } from '@pebula-internal/webpack-ssr-and-seo';
 import { MarkdownAppSearchWebpackPlugin } from '@pebula-internal/webpack-markdown-app-search';
@@ -37,14 +37,18 @@ function applyLoaders(webpackConfig: Configuration) {
 function updateWebpackConfig(webpackConfig: Configuration): Configuration {
   applyLoaders(webpackConfig);
 
-
   // push the new plugin AFTER the angular compiler plugin
-  const AngularCompilerPlugin = require('@ngtools/webpack').AngularCompilerPlugin;
-  const idx = webpackConfig.plugins.findIndex( p => p instanceof AngularCompilerPlugin );
+  const { AngularWebpackPlugin } = require('@ngtools/webpack');
 
-  const oldOptions = (webpackConfig.plugins[idx] as any)._options;
-  oldOptions.directTemplateLoading = false;
-  webpackConfig.plugins[idx] = new AngularCompilerPlugin(oldOptions);
+  let idx = webpackConfig.plugins.findIndex( p => p instanceof AngularWebpackPlugin );
+  if (idx > -1) {
+    const oldOptions = (webpackConfig.plugins[idx] as any).options;
+    oldOptions.directTemplateLoading = false;
+    webpackConfig.plugins[idx] = new AngularWebpackPlugin(oldOptions);
+  } else {
+    throw new Error('Invalid webpack configuration, could not find "AngularCompilerPlugin" or "AngularWebpackPlugin" in the plugins registered');
+  }
+
 
   const remarkSlug = require('remark-slug')
   const remarkAutolinkHeadings = require('@rigor789/remark-autolink-headings');
@@ -58,8 +62,8 @@ function updateWebpackConfig(webpackConfig: Configuration): Configuration {
     'E>': 'error icon',
   }};
 
-  const dynamicModule = new PebulaDynamicModuleWebpackPlugin(Path.join(process.cwd(), 'markdown-pages.js'));
-  webpackConfig.plugins.push(dynamicModule);
+  const NGRID_CONTENT_MAPPING_FILE = 'ngrid-content-mapping.json';
+  webpackConfig.plugins.push(new PebulaDynamicDictionaryWebpackPlugin(NGRID_CONTENT_MAPPING_FILE));
 
   webpackConfig.plugins.push(new MarkdownPagesWebpackPlugin({
     context: __dirname,
@@ -106,6 +110,7 @@ function updateWebpackConfig(webpackConfig: Configuration): Configuration {
     };
     const gitInfo = await simplegit().log({ n: "1", format});
     return {
+      NGRID_CONTENT_MAPPING_FILE: JSON.stringify(NGRID_CONTENT_MAPPING_FILE),
       ANGULAR_VERSION: JSON.stringify(angular.version),
       CDK_VERSION: JSON.stringify(cdk.version),
       NGRID_VERSION: JSON.stringify(ngrid.version),
@@ -117,19 +122,36 @@ function updateWebpackConfig(webpackConfig: Configuration): Configuration {
   const definePlugin = new AsyncDefinePlugin(fn);
   webpackConfig.plugins.push(definePlugin);
 
+  // webpackConfig.plugins.push(new debug.ProfilingPlugin({
+  //     outputPath: Path.join(process.cwd(), 'webpack_profiling_events.json'),
+  //   })
+  // );
+
   return webpackConfig;
 }
 
 module.exports = updateWebpackConfig;
 
 export class AsyncDefinePlugin {
-  constructor(private asyncDef: () => Promise<any>) { }
+
+  constructor(private asyncDef: () => Promise<any>) {
+
+  }
 
   apply(compiler: Compiler) {
-    compiler.hooks.beforeCompile.tapPromise('AsyncDefinePlugin', async () => {
+    let executeDefinePlugin = async () => {
       const definitions = await this.asyncDef();
       const definePlugin = new DefinePlugin(definitions);
       definePlugin.apply(compiler);
+    };
+
+    compiler.hooks.run.tapPromise('AsyncDefinePlugin', executeDefinePlugin);
+
+    compiler.hooks.watchRun.tapPromise('AsyncDefinePlugin', async () => {
+      if (executeDefinePlugin) {
+        await executeDefinePlugin();
+        executeDefinePlugin = undefined;
+      }
     });
   }
 }

@@ -8,12 +8,13 @@ import {
   ViewContainerRef,
   ViewChild,
   ComponentRef,
+  Inject,
 } from '@angular/core';
 import { unrx } from '@pebula/ngrid/core';
 
+import { _PblNgridComponent, PBL_NGRID_COMPONENT } from '../../tokens';
 import { PblNgridPluginController } from '../../ext/plugin-control';
 import { EXT_API_TOKEN, PblNgridInternalExtensionApi } from '../../ext/grid-ext-api';
-import { PblNgridComponent } from '../ngrid.component';
 import { moveItemInArrayExt } from '../column/management/column-store';
 import { GridRowType, PblRowTypeToCellTypeMap } from './types';
 import { PblRowTypeToColumnTypeMap } from '../column/management';
@@ -24,7 +25,7 @@ export const PBL_NGRID_BASE_ROW_TEMPLATE  = `<ng-container #viewRef></ng-contain
 @Directive()
 export abstract class PblNgridBaseRowComponent<TRowType extends GridRowType, T = any> implements OnInit, DoCheck, AfterViewInit, OnDestroy {
 
-  grid: PblNgridComponent<T>;
+  grid: _PblNgridComponent<T>;
 
   @ViewChild('viewRef', { read: ViewContainerRef, static: true }) _viewRef: ViewContainerRef;
 
@@ -53,7 +54,7 @@ export abstract class PblNgridBaseRowComponent<TRowType extends GridRowType, T =
 
   private _attached = true;
 
-  constructor(@Optional() grid: PblNgridComponent<T>,
+  constructor(@Inject(PBL_NGRID_COMPONENT) @Optional() grid: _PblNgridComponent<T>,
               readonly cdRef: ChangeDetectorRef,
               elementRef: ElementRef<HTMLElement>) {
     this.element = elementRef.nativeElement;
@@ -134,8 +135,11 @@ export abstract class PblNgridBaseRowComponent<TRowType extends GridRowType, T =
     if (cell) {
       const index = this._cells.indexOf(cell);
       if (!this.canDestroyCell || this.canDestroyCell(cell)) {
+        const len = this._cells.length;
         this._viewRef.remove(index);
-        this._cells.splice(index, 1);
+        if (len === this._cells.length) {
+          this._cells.splice(index, 1);
+        }
         if (this.cellDestroyed) {
           this.cellDestroyed(cell, index);
         }
@@ -196,7 +200,8 @@ export abstract class PblNgridBaseRowComponent<TRowType extends GridRowType, T =
       this._extApi = this._extApi || PblNgridPluginController.find(this.grid).extApi as PblNgridInternalExtensionApi<T>;
       this.cellInjector = Injector.create({
         providers: [
-          { provide: PblNgridComponent, useValue: this.grid },
+          { provide: PBL_NGRID_COMPONENT, useValue: this.grid },
+          { provide: this.grid.constructor, useValue: this.grid },
           { provide: EXT_API_TOKEN, useValue: this._extApi },
         ],
         parent: injector,

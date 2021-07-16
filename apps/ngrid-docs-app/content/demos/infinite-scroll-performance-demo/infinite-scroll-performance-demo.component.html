@@ -7,7 +7,7 @@
     </mat-radio-group>
     <mat-slider *ngIf="wheelModeState === 'threshold'" thumbLabel min="1" max="55" [value]="wheelMode" (change)="wheelMode = $event.value"></mat-slider>
   </div>
-  <mat-checkbox [value]="plainColumns" (change)="togglePlainColumns()">Use plain columns (higher frame rate)</mat-checkbox>
+  <mat-checkbox [checked]="plainColumns" (change)="togglePlainColumns()">Use plain columns (higher frame rate)</mat-checkbox>
   <div style="flex: 1 1 100%; display: flex; min-height: 0px">
     <pbl-ngrid *ngIf="showTable" class="pbl-ngrid-cell-ellipsis pbl-ngrid-header-cell-ellipsis"
                 style="height: 100%; width: 100%;"
@@ -19,7 +19,7 @@
                 blockUi
                 matSort
                 cellTooltip>
-      <pbl-demo-action-row filter label="Infinite Scroll Performance" showFps></pbl-demo-action-row>
+      <pbl-demo-action-row label="Infinite Scroll Performance" showFps></pbl-demo-action-row>
       <div *pblNgridCellTypeDef="'accountBalance'; let ctx; value as value; col as col; row as row"
             [ngridCellClass]="value < 0 ? col.type.data.pbl : col.type.data.pos">{{ value | currency:col.type.data.meta.currency(row):'symbol':col.type.data.format }}</div>
       <div *pblNgridCellTypeDef="'flagAndCountry'; col as col; row as row">{{ col.type.data.flagAndCountry(row) }}</div>

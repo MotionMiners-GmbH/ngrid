@@ -1,5 +1,5 @@
 import { Component, EventEmitter, ViewEncapsulation, Input, ViewChild, TemplateRef, AfterViewInit, Output } from '@angular/core';
-import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 import { MatMenuTrigger } from '@angular/material/menu';
 
 import { PblNgridComponent, AutoSizeToFitOptions } from '@pebula/ngrid';
@@ -34,7 +34,7 @@ export class DemoActionRowComponent implements AfterViewInit {
       return behavior;
     }
   };
-  autoSizeColumnToFitOptionsForever = { ...this.autoSizeColumnToFitOptions, forceWidthType: '%' };
+  autoSizeColumnToFitOptionsForever = { ...this.autoSizeColumnToFitOptions, forceWidthType: '%' as const };
 
   @Input() get showFps(): boolean { return this._showFps; }
   set showFps(value: boolean) {
@@ -75,4 +75,7 @@ export class DemoActionRowComponent implements AfterViewInit {
     this.grid.columnApi.showColumns(true);
     this.grid.invalidateColumns();
   }
+
+  static ngAcceptInputType_filter: BooleanInput;
+  static ngAcceptInputType_showFps: BooleanInput;
 }

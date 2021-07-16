@@ -7,7 +7,7 @@ import {
   ViewEncapsulation,
   OnDestroy,
 } from '@angular/core';
-import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 
 import { deprecatedWarning, unrx } from '@pebula/ngrid/core';
@@ -55,7 +55,7 @@ export class PblPaginatorComponent implements OnDestroy {
   }
 
   /**
-   * @deprecated Use `grid` instead, will be removed in version 4
+   * @deprecated Will be removed in v5, Use `grid` instead
    */
   @Input() get table(): PblNgridComponent<any> {
     if (typeof ngDevMode === 'undefined' || ngDevMode) {
@@ -64,11 +64,11 @@ export class PblPaginatorComponent implements OnDestroy {
     return this.grid;
   }
   /**
-   * @deprecated Use `grid` instead, will be removed in version 4
+   * @deprecated Will be removed in v5, Use `grid` instead
    */
   set table(value: PblNgridComponent<any>) {
     if (typeof ngDevMode === 'undefined' || ngDevMode) {
-      console.warn(`"PblPaginatorComponent.table" is deprecated and will be removed in version 4, use "grid" instead.`)
+      console.warn(`"PblPaginatorComponent.table" is deprecated and will be removed in version 5, use "grid" instead.`)
     }
     this.grid = value;
   }
@@ -118,4 +118,7 @@ export class PblPaginatorComponent implements OnDestroy {
     this.cdr.detectChanges();
     this.cdr.markForCheck();
   }
+
+  static ngAcceptInputType_hidePageSize: BooleanInput;
+  static ngAcceptInputType_hideRangeSelect: BooleanInput;
 }

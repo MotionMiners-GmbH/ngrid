@@ -1,0 +1,102 @@
+// BASED ON:
+// https://github.com/angular/material2/blob/edbbc1bd7299df96a2f9c4200c3832d433f9cf5c/src/lib/table/_table-theme.scss
+
+// Because `@pebula/ngrid` depends on the `@angular/cdk` and because all SCSS theme tools are in `@angular/material` we
+// must hard-copy some of them so that `@pebula/ngrid` does not require `@angular/material`
+@use 'sass:map';
+@use '../../theming' as theming;
+@use '../../typography/typography' as typography;
+@use '../../typography/typography-utils' as typography-utils;
+
+@use '../base';
+
+@mixin cdk-table-theme($theme) {
+
+  @include base.cdk-table-base();
+
+  $primary: map.get($theme, primary);
+  $accent: map.get($theme, accent);
+  $warn: map.get($theme, warn);
+  $background: map.get($theme, background);
+  $foreground: map.get($theme, foreground);
+
+  $row-background: map.get($background, ngrid-row-color);
+  $border-color: map.get($foreground, ngrid-border-color);
+  $header-cell-color: map.get($foreground, ngrid-header-cell-color);
+  $cell-color: map.get($foreground, ngrid-cell-color);
+  $footer-cell-color: map.get($foreground, ngrid-footer-cell-color);
+
+  .pbl-ngrid-row, .pbl-ngrid-header-row, .pbl-ngrid-footer-row,
+  .pbl-ngrid-header-cell, .pbl-ngrid-cell, .pbl-ngrid-footer-cell {
+    border-color: $border-color;
+  }
+
+  .pbl-ngrid-header-cell.pbl-header-group-cell:before {
+    border-color: $border-color;
+  }
+
+  .pbl-ngrid-row, .pbl-ngrid-header-row, .pbl-ngrid-footer-row {
+    background: $row-background;
+  }
+
+  .pbl-ngrid-header-cell {
+    color: $header-cell-color;
+  }
+
+  .pbl-ngrid-cell {
+    color: $cell-color;
+  }
+
+  .pbl-ngrid-footer-cell {
+    color: $footer-cell-color;
+  }
+
+  .cdk-table-sticky {
+    position: -webkit-sticky;
+    position: sticky;
+  }
+
+  .cdk-table-sticky-border-elem-top {
+    border-bottom: 2px solid $border-color;
+  }
+
+  .cdk-table-sticky-border-elem-right {
+    &:before {
+      transition: all 250ms ease-in;
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      border-right: 2px solid $border-color;
+    }
+  }
+
+  .cdk-table-sticky-border-elem-bottom {
+    border-top: 2px solid $border-color;
+  }
+
+  .cdk-table-sticky-border-elem-left {
+    &:after {
+      transition: all 250ms ease-in;
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      right: 0px;
+      height: 100%;
+      border-right: 2px solid $border-color;
+    }
+  }
+}
+
+@mixin cdk-table-typography($config: null) {
+  @if $config == null {
+    $config: typography.define-typography-config();
+  }
+
+  .pbl-cdk-table {
+    font-family: typography-utils.font-family($config);
+  }
+}

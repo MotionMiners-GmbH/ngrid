@@ -1,3 +1,122 @@
+# 4.0.0-alpha.3 (2021-05-24)
+
+### ngrid
+
+|            |                       |
+| ---------- | --------------------- |
+| bug fix |  revert to using ViewEngine package ([3a1fe8f3202f4760d53085874279b26cfd902e88](https://github.com/shlomiassaf/ngrid/commit/3a1fe8f3202f4760d53085874279b26cfd902e88)) |
+
+
+# 4.0.0-alpha.2 (2021-05-24)
+
+
+# 4.0.0-alpha.1 (2021-05-24)
+
+### ngrid
+
+|            |                       |
+| ---------- | --------------------- |
+| bug fix |  scss bundles proper export ([c86b9b5140e584971aeeaf50223a03a72e014e36](https://github.com/shlomiassaf/ngrid/commit/c86b9b5140e584971aeeaf50223a03a72e014e36)) |
+| bug fix |  force export augmenting d.ts files ([f2c60ab](https://github.com/shlomiassaf/ngrid/commit/f2c60ab8910aad3e6775441f71111a6f670cc1e8)) |
+
+# 4.0.0-alpha.0 (2021-05-24)
+
+## Highlights
+
+### Sass
+Sass theming API has been reworked so that clients can take advantage of @use. This includes:
+
+- A single entry point into `@pebula/ngrid`, `@pebula/ngrid-material` and `@pebula/ngrid-bootstrap`
+- Renamed functions, mixins, and variables to be a better reflection of what they do
+- Applications still using node-sass will need to switch to the sass package
+For more information, check out [the new material theming guide](https://github.com/angular/components/blob/25665dcc219fbbb76d0ba7f79982672500f78644/guides/theming.md) and [ngrid's theming docs](https://shlomiassaf.github.io/ngrid/concepts/theming/introduction).
+- For convinience, legacy theming API is still availavle at `@pebula/ngrid/theming`, `@pebula/ngrid-material/theming` and `@pebula/ngrid-bootstrap/theming`. The legacy API will be removed in v5.0.0
+
+### IVY APF v12
+
+Starting from version 4 of **nGrid**, the library is packaged using the new IVY [**A**ngular **P**acakge **F**ormat (v12)](https://docs.google.com/document/d/1CZC2rcpxffTDfRDs6p1cfbmKNLA6x5O-NtkJglDaBVs).
+
+Compilation is done in `ViewEngine` mode.  
+While angular recommends compiling in [partial-ivy mode](https://angular.io/guide/creating-libraries#transitioning-libraries-to-partial-ivy-format), it has several limitations:
+
+- Support is still not wide-spread so several tools will not load **nGrid** (StackBlitz, CodeSandbox, etc...)
+- Applcations still running in `ViewEnginge` will not be able to run **nGrid** while IVY application can use NGCC
+- NGCC in v12 is still fully operational, so why limit?
+- `@angular/components` (material) is also publishing v12 libaraies in `ViewEngine`
+
+However, as part of the CI process we still compile with partial-ivy mode enabled to catch errors since it is still new and has [it's quirks](https://github.com/angular/angular/issues/42208) which required some shellow API changes to work around it's issues. There should be no effect and used to ensure futute competability, however, if you experience strange behaviour please report.
+
+In addition, symboles exposes in public modules are now required to be exposed in the public API as well. This resulted in multiple symboles which were previously private now exposed.  
+
+### Aligned with v12 of the angular eco-system
+
+Library is now on par with version 12 of `angular`, `@angular/cdk` and `@angular/components` (material).
+
+Since `nGrid@v4` is IVY compiled and the CDK does not support previous versions, v4 of **nGrid** will only run on angular version 12 and up. 
+
+### ngrid
+
+|            |                       |
+| ---------- | --------------------- |
+| bug fix |  **sort:** support empty strings when sorting ([6a1023e066a297f6b87c8a37554fc73ac723e114](https://github.com/shlomiassaf/ngrid/commit/6a1023e066a297f6b87c8a37554fc73ac723e114)) |
+
+
+## 3.1.4 (2021-04-08)
+
+
+### Bug Fixes
+
+* **ngrid/target-events:** underfined rowContext ([80d0e9d](https://github.com/shlomiassaf/ngrid/commit/80d0e9dd796f96c46262abf61174d528ec6f2fd2)), closes [#181](https://github.com/shlomiassaf/ngrid/issues/181)
+
+
+
+## 3.1.3 (2021-03-31)
+
+
+### Bug Fixes
+
+* **ngrid:** autofit is not accurate ([55b5c75](https://github.com/shlomiassaf/ngrid/commit/55b5c75c05f03ef55aab367136cdfb20619b5b21)), closes [#172](https://github.com/shlomiassaf/ngrid/issues/172)
+
+
+
+## 3.1.2 (2021-03-31)
+
+
+### Bug Fixes
+
+* **ngrid/sticky:** refactor sticky columns to work again ([bacd12a](https://github.com/shlomiassaf/ngrid/commit/bacd12af6509da970112ebd08f3ded9079efa5ad)), closes [#160](https://github.com/shlomiassaf/ngrid/issues/160)
+* proper boolean template type for strict type checking ([9a29552](https://github.com/shlomiassaf/ngrid/commit/9a295526febdca175c68ab3532b1c0291a02c7c1))
+
+
+
+## 3.1.1 (2021-03-22)
+
+
+### Bug Fixes
+
+* rebuild all cells context instead of only the visible upon onInvalidateHeaders event ([5779d94](https://github.com/shlomiassaf/ngrid/commit/5779d942346ead4cbe47732b8e0400a0e6534993))
+
+
+
+# 3.1.0 (2021-03-07)
+
+
+### Bug Fixes
+
+* **ngrid:** wrong tracking of removed columns ([c75334d](https://github.com/shlomiassaf/ngrid/commit/c75334df6cb68d9b4db7020fff4b7b3e4e289c15))
+* **ngrid:** refactor to support CDK & Material breaking changes ([f3eba68](https://github.com/shlomiassaf/ngrid/commit/f3eba6823a8dc7a2c5d434573af7540bed3c70d0)), closes [#161](https://github.com/shlomiassaf/ngrid/issues/161)
+
+
+
+## 3.0.1 (2021-03-04)
+
+
+### Bug Fixes
+
+* **ngrid:** value and col args in transform function ([fbe95e4](https://github.com/shlomiassaf/ngrid/commit/fbe95e4b2cd7a63a57f71e20ad69fff5199e8b00))
+
+
+
 # 3.0.0 (2020-12-30)
 
 
