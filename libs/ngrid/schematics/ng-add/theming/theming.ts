@@ -42,9 +42,8 @@ const defaultCustomThemeFilename = 'custom-theme.scss';
 export function addThemeToAppStyles(schema: SetupSchema): Rule {
   return (host: Tree, context: SchematicContext) => {
     const themeName = schema.theme || 'light';
-    return themeName === 'custom' ?
-      insertCustomTheme(schema, host, context.logger) :
-      insertPrebuiltTheme(schema, themeName, context.logger);
+    // @ts-ignore
+    return themeName === 'custom' ? insertCustomTheme(schema, host, context.logger) : insertPrebuiltTheme(schema, themeName, context.logger);
   };
 }
 /**
