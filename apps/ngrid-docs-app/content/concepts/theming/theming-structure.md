@@ -50,7 +50,7 @@ To create a custom theme:
 A typical theme file will look something like this:
 
 ```scss
-@use '~@pebula/ngrid' as ngrid;
+@use '@pebula/ngrid' as ngrid;
 
 // 1. Create a palette from a color schema
 // `ngrid.$blue-palett` is a predefined color palette provided by `@pebula/ngrid/theming`
@@ -147,6 +147,7 @@ Take one of the spacing configuration and use it to create a new modified versio
 Now use it to create a spacing class:
 
 ```scss
+@use '~@pebula/ngrid' as ngrid;
 
 $my-custom-spacing: (
   header-row-height: 28px,
@@ -157,7 +158,7 @@ $my-custom-spacing: (
 );
 
 pbl-ngrid.grid-custom-space {
-  @include pbl-ngrid-spacing(map-merge($theme, ( spacing: $my-custom-spacing )));
+  @include ngrid.spacing-theme(map-merge($theme, ( spacing: $my-custom-spacing )));
 }
 ```
 

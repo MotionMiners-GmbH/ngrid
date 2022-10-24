@@ -160,8 +160,12 @@ export class PblNgridTargetEventsPlugin<T = any> {
         if (matrixPoint) {
           const event: Events.PblNgridRowEvent<T> = { ...matrixPoint, source, rowTarget } as any;
           if (matrixPoint.type === 'data') {
-            (event as Events.PblNgridDataMatrixRow<T>).context = this.pluginCtrl.extApi.contextApi.getRow(matrixPoint.rowIndex);
-            (event as Events.PblNgridDataMatrixRow<T>).row = (event as Events.PblNgridDataMatrixRow<T>).context.$implicit;
+            const row = this.pluginCtrl.extApi.contextApi.getRow(matrixPoint.rowIndex);
+            if (!row) {
+              return undefined;
+            }
+            (event as Events.PblNgridDataMatrixRow<T>).context = row;
+            (event as Events.PblNgridDataMatrixRow<T>).row = row.$implicit;
           }
 
           /*  If `subType !== 'data'` it can only be `meta` because `metadataFromElement()` does not handle `meta-group` subType.
@@ -370,9 +374,9 @@ export class PblNgridTargetEventsPlugin<T = any> {
 
 @Directive({
   // tslint:disable-next-line:directive-selector
-  selector: 'pbl-ngrid[targetEvents], pbl-ngrid[rowClick], pbl-ngrid[rowDblClick], pbl-ngrid[rowEnter], pbl-ngrid[rowLeave], pbl-ngrid[cellClick], pbl-ngrid[cellDblClick], pbl-ngrid[cellEnter], pbl-ngrid[cellLeave], pbl-ngrid[keyDown], pbl-ngrid[keyUp]',
+  selector: 'pbl-ngrid[targetEvents], pbl-ngrid[mouseDown], pbl-ngrid[mouseUp], pbl-ngrid[rowClick], pbl-ngrid[rowDblClick], pbl-ngrid[rowEnter], pbl-ngrid[rowLeave], pbl-ngrid[cellClick], pbl-ngrid[cellDblClick], pbl-ngrid[cellEnter], pbl-ngrid[cellLeave], pbl-ngrid[keyDown], pbl-ngrid[keyUp]',
   // tslint:disable-next-line:use-output-property-decorator
-  outputs: [ 'rowClick', 'rowDblClick', 'rowEnter', 'rowLeave', 'cellClick', 'cellDblClick', 'cellEnter', 'cellLeave', 'keyDown', 'keyUp' ]
+  outputs: [ 'mouseDown', 'mouseUp', 'rowClick', 'rowDblClick', 'rowEnter', 'rowLeave', 'cellClick', 'cellDblClick', 'cellEnter', 'cellLeave', 'keyDown', 'keyUp' ]
 })
 export class PblNgridTargetEventsPluginDirective<T> extends PblNgridTargetEventsPlugin<T> implements OnDestroy {
 

@@ -1,54 +1,50 @@
 import * as Path from 'path';
-import { Compiler, Configuration, DefinePlugin, debug } from 'webpack';
+import { Compiler, Configuration, DefinePlugin, WebpackOptionsNormalized } from 'webpack';
 import * as simplegit from 'simple-git/promise';
 
 import { PebulaDynamicDictionaryWebpackPlugin } from '@pebula-internal/webpack-dynamic-dictionary';
+import { PebulaNoCleanIfAnyWebpackPlugin } from '@pebula-internal/webpack-no-clean-if-any';
 import { MarkdownPagesWebpackPlugin } from '@pebula-internal/webpack-markdown-pages';
 import { SsrAndSeoWebpackPlugin } from '@pebula-internal/webpack-ssr-and-seo';
 import { MarkdownAppSearchWebpackPlugin } from '@pebula-internal/webpack-markdown-app-search';
 import { MarkdownCodeExamplesWebpackPlugin } from '@pebula-internal/webpack-markdown-code-examples';
-
+import type { AngularWebpackPlugin as _AngularWebpackPlugin } from '@ngtools/webpack';
 import * as remarkPlugins from './build/remark';
 
 // ** CONFIG VALUES **
-function applyLoaders(webpackConfig: Configuration) {
+function applyLoaders(webpackConfig: WebpackOptionsNormalized) {
   // We have custom loaders, for webpack to be aware of them we tell it the directory the are in.
   // make sure that each folder behaves like a node module, that is it has an index file inside root or a package.json pointing to it.
   // the default lib generation of nx and angular/cli does not do that.
-  webpackConfig.resolveLoader.modules.push('libs-internal');
+  if (!webpackConfig.resolveLoader.modules)
+    webpackConfig.resolveLoader.modules = ["node_modules"];
 
+  webpackConfig.resolveLoader.modules.push("libs-internal");
 
   // We push new loader rules to handle the scenarios
   // we also add a loader to handle markdown files.
   webpackConfig.module.rules.push(
     {
       test: [ /\.html$/ ],
-      rules: [
-        {
-          use: [
-            'html-loader',
-          ]
-        },
-      ]
+      use: [ "html-loader" ],
+      resourceQuery: { not: [/\\?ngResource/] },
     },
   );
 }
 
-function updateWebpackConfig(webpackConfig: Configuration): Configuration {
+function updateWebpackConfig(webpackConfig: WebpackOptionsNormalized): WebpackOptionsNormalized {
   applyLoaders(webpackConfig);
 
   // push the new plugin AFTER the angular compiler plugin
-  const { AngularWebpackPlugin } = require('@ngtools/webpack');
+  const AngularWebpackPlugin: typeof _AngularWebpackPlugin = require('@ngtools/webpack').AngularWebpackPlugin;
 
-  let idx = webpackConfig.plugins.findIndex( p => p instanceof AngularWebpackPlugin );
-  if (idx > -1) {
-    const oldOptions = (webpackConfig.plugins[idx] as any).options;
-    oldOptions.directTemplateLoading = false;
-    webpackConfig.plugins[idx] = new AngularWebpackPlugin(oldOptions);
-  } else {
-    throw new Error('Invalid webpack configuration, could not find "AngularCompilerPlugin" or "AngularWebpackPlugin" in the plugins registered');
+  var angularPlugins = webpackConfig.plugins.filter((p) => p instanceof AngularWebpackPlugin) as _AngularWebpackPlugin[];
+  if (angularPlugins.length == 0) {
+    throw new Error(
+      'Invalid webpack configuration, could not find "AngularCompilerPlugin" or "AngularWebpackPlugin" in the plugins registered'
+    );
   }
-
+  angularPlugins.forEach((p) => p.options.directTemplateLoading = false);
 
   const remarkSlug = require('remark-slug')
   const remarkAutolinkHeadings = require('@rigor789/remark-autolink-headings');
@@ -64,6 +60,7 @@ function updateWebpackConfig(webpackConfig: Configuration): Configuration {
 
   const NGRID_CONTENT_MAPPING_FILE = 'ngrid-content-mapping.json';
   webpackConfig.plugins.push(new PebulaDynamicDictionaryWebpackPlugin(NGRID_CONTENT_MAPPING_FILE));
+  webpackConfig.plugins.push(new PebulaNoCleanIfAnyWebpackPlugin());
 
   webpackConfig.plugins.push(new MarkdownPagesWebpackPlugin({
     context: __dirname,
