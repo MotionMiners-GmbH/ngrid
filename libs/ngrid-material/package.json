@@ -2,8 +2,8 @@
   "name": "@pebula/ngrid-material",
   "version": "5.0.0",
   "peerDependencies": {
-    "@angular/material": "^14.0.0",
-    "@pebula/ngrid": "5.0.0"
+    "@angular/material": ">=15.0.0",
+    "@pebula/ngrid": ">=5.0.0"
   },
   "exports": {
     ".": {
